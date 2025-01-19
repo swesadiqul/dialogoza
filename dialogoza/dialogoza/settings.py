@@ -40,12 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'drf_yasg',
     'channels',
     'corsheaders',
-    # 'rest_framework.authtoken',
-    # 'django_filters',
-    # 'storages',
     'core',
     'chat',
 ]
@@ -177,3 +175,10 @@ CSRF_COOKIE_NAME = "csrftoken"
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = False  # Set to True in production if using HTTPS
 
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}

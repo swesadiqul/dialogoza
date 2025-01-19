@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
     FaSearch,
@@ -18,37 +18,56 @@ const ChatPage = () => {
     const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
+    const [userToken, setUserToken] = useState("");
+
+    // Retrieve token from localStorage on component mount
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        console.log(token)
+        if (!token) {
+            alert("You are not logged in. Redirecting to login page.");
+            window.location.href = "/login"; // Redirect to login page
+        }
+        setUserToken(token);
+    }, []);
 
     const sendMessage = async (e) => {
         e.preventDefault();
         if (input.trim() === "") return;
-
+    
         const userMessage = { id: Date.now(), sender: "User", text: input };
         setMessages([...messages, userMessage]);
-
+    
         setInput("");
-
+    
         setIsTyping(true);
-
+    
         try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found");
+                return;
+            }
+    
             const response = await axios.post(
-                "http://localhost:8000/api/chat/",
-                { message: input },
+                "http://localhost:8000/api/v1/chat/",
+                { content: input },
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        "X-CSRFToken": getCsrfToken(),
+                        "Authorization": `Token ${userToken}`,  // Pass token in Authorization header
                     },
                 }
             );
-
-            if (response.status === 200) {
+            console.log(response)
+    
+            if (response.status === 201) {
                 setTimeout(() => {
                     setIsTyping(false);
                     const aiMessage = {
                         id: Date.now() + 1,
                         sender: "AI",
-                        text: response.data.reply,
+                        text: response.data.content,
                     };
                     setMessages((prevMessages) => [...prevMessages, aiMessage]);
                 }, 1000);
@@ -60,11 +79,9 @@ const ChatPage = () => {
             setIsTyping(false);
         }
     };
-
-    const getCsrfToken = () => {
-        const csrfToken = document.cookie.match(/csrftoken=([\w-]+)/);
-        return csrfToken ? csrfToken[1] : "";
-    };
+    
+    
+    
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
@@ -93,21 +110,12 @@ const ChatPage = () => {
         }
 
         try {
-            // Simulated search results for demonstration purposes
             const results = [
                 { id: 1, text: `Result for "${query}" - Item 1` },
                 { id: 2, text: `Result for "${query}" - Item 2` },
                 { id: 3, text: `Result for "${query}" - Item 3` },
             ];
             setSearchResults(results);
-
-            // Example of making a backend API call for live search
-            /*
-            const response = await axios.get(`http://localhost:8000/api/search/?query=${query}`);
-            if (response.status === 200) {
-              setSearchResults(response.data.results);
-            }
-            */
         } catch (error) {
             console.error("Error during live search:", error);
         }
@@ -271,7 +279,6 @@ const ChatPage = () => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };
