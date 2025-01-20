@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-    FaSearch,
-    FaPlus,
-    FaBars,
-    FaTimes,
-    FaUserCircle,
-    FaPaperPlane,
-} from "react-icons/fa";
+import { FaSearch, FaPlus, FaBars, FaTimes, FaUserCircle, FaPaperPlane } from "react-icons/fa";
+
 
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
@@ -15,18 +9,13 @@ const ChatPage = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
     const [userToken, setUserToken] = useState("");
 
-    // Retrieve token from localStorage on component mount
     useEffect(() => {
         const token = localStorage.getItem("token");
-        console.log(token)
         if (!token) {
             alert("You are not logged in. Redirecting to login page.");
-            window.location.href = "/login"; // Redirect to login page
+            window.location.href = "/login";
         }
         setUserToken(token);
     }, []);
@@ -34,33 +23,25 @@ const ChatPage = () => {
     const sendMessage = async (e) => {
         e.preventDefault();
         if (input.trim() === "") return;
-    
+
         const userMessage = { id: Date.now(), sender: "User", text: input };
         setMessages([...messages, userMessage]);
-    
+
         setInput("");
-    
         setIsTyping(true);
-    
+
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("No token found");
-                return;
-            }
-    
             const response = await axios.post(
                 "http://localhost:8000/api/v1/chat/",
                 { content: input },
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Token ${userToken}`,  // Pass token in Authorization header
+                        Authorization: `Token ${userToken}`, // Pass token in Authorization header
                     },
                 }
             );
-            console.log(response)
-    
+
             if (response.status === 201) {
                 setTimeout(() => {
                     setIsTyping(false);
@@ -79,79 +60,24 @@ const ChatPage = () => {
             setIsTyping(false);
         }
     };
-    
-    
-    
 
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
-
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
-    };
-
-    const openSearchModal = () => {
-        setIsSearchModalOpen(true);
-    };
-
-    const closeSearchModal = () => {
-        setIsSearchModalOpen(false);
-        setSearchQuery("");
-        setSearchResults([]);
-    };
-
-    const handleLiveSearch = async (query) => {
-        setSearchQuery(query);
-
-        if (query.trim() === "") {
-            setSearchResults([]);
-            return;
-        }
-
-        try {
-            const results = [
-                { id: 1, text: `Result for "${query}" - Item 1` },
-                { id: 2, text: `Result for "${query}" - Item 2` },
-                { id: 3, text: `Result for "${query}" - Item 3` },
-            ];
-            setSearchResults(results);
-        } catch (error) {
-            console.error("Error during live search:", error);
-        }
-    };
+    const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
     return (
         <div className="h-screen flex">
             {/* Sidebar */}
             <div
-                className={`${sidebarOpen ? "w-64" : "w-0"
-                    } bg-gray-800 text-white transition-all duration-300 overflow-hidden`}
+                className={`${
+                    sidebarOpen ? "w-64" : "w-0"
+                } bg-gray-800 text-white transition-all duration-300 overflow-hidden`}
             >
                 {/* Sidebar Header */}
                 <div className="flex justify-between p-4">
-                    <button
-                        onClick={toggleSidebar}
-                        className="text-white bg-gray-600 p-2 rounded-full"
-                    >
+                    <button onClick={toggleSidebar} className="text-white bg-gray-600 p-2 rounded-full">
                         {sidebarOpen ? <FaTimes /> : <FaBars />}
                     </button>
-
-                    {sidebarOpen && (
-                        <div className="flex items-center space-x-4">
-                            <button
-                                onClick={openSearchModal}
-                                className="text-white bg-gray-600 p-2 rounded-full"
-                            >
-                                <FaSearch />
-                            </button>
-                            <button className="text-white bg-gray-600 p-2 rounded-full">
-                                <FaPlus />
-                            </button>
-                        </div>
-                    )}
                 </div>
-
                 {/* Chat History */}
                 {sidebarOpen && (
                     <div className="p-4">
@@ -159,12 +85,6 @@ const ChatPage = () => {
                         <div className="mt-4">
                             <div className="text-sm font-semibold">Today</div>
                             <div className="text-gray-400 text-sm mb-2">Chat with AI - 10:30 AM</div>
-
-                            <div className="text-sm font-semibold">Yesterday</div>
-                            <div className="text-gray-400 text-sm mb-2">Chat with AI - 9:00 PM</div>
-
-                            <div className="text-sm font-semibold">Wise</div>
-                            <div className="text-gray-400 text-sm">Chat with AI - 1 Jan 2025</div>
                         </div>
                     </div>
                 )}
@@ -174,18 +94,9 @@ const ChatPage = () => {
             <div className="flex-1 flex flex-col bg-gray-100">
                 {/* Header */}
                 <div className="bg-blue-500 text-white p-4 flex justify-between items-center">
-                    {sidebarOpen ? (
-                        <h2 className="text-2xl font-semibold">Chat with Dialogoza AI</h2>
-                    ) : (
-                        <button
-                            onClick={toggleSidebar}
-                            className="text-white bg-gray-600 p-2 rounded-full"
-                        >
-                            <FaBars />
-                        </button>
-                    )}
-
-                    {/* User Icon with Dropdown */}
+                    <button onClick={toggleSidebar} className="text-white bg-gray-600 p-2 rounded-full">
+                        <FaBars />
+                    </button>
                     <div className="relative">
                         <button
                             onClick={toggleDropdown}
@@ -210,22 +121,43 @@ const ChatPage = () => {
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
-                            className={`flex ${msg.sender === "User" ? "justify-end" : "justify-start"}`}
+                            className={`flex ${
+                                msg.sender === "User" ? "justify-end" : "justify-start"
+                            } items-center`}
                         >
+                            {msg.sender === "AI" && (
+                                <div className="mr-3">
+                                    <FaUserCircle size={24} className="text-gray-600" />
+                                </div>
+                            )}
                             <div
-                                className={`${msg.sender === "User" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                    } p-4 rounded-xl max-w-lg shadow-md`}
+                                className={`${
+                                    msg.sender === "User"
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-300 text-gray-800"
+                                } p-4 rounded-xl max-w-lg shadow-md`}
                             >
-                                <p className="text-sm font-semibold">{msg.sender}</p>
                                 <p>{msg.text}</p>
                             </div>
+                            {msg.sender === "User" && (
+                                <div className="ml-3">
+                                    <FaUserCircle size={24} className="text-blue-500" />
+                                </div>
+                            )}
                         </div>
                     ))}
 
                     {isTyping && (
-                        <div className="flex justify-start">
+                        <div className="flex justify-start items-center">
+                            <div className="mr-3">
+                                <FaUserCircle size={24} className="text-gray-600" />
+                            </div>
                             <div className="bg-gray-300 text-gray-800 p-4 rounded-xl max-w-lg shadow-md">
-                                <p>AI is typing...</p>
+                                <div className="flex items-center">
+                                    <div className="dot w-2 h-2 bg-gray-500 rounded-full mr-2 animate-pulse"></div>
+                                    <div className="dot w-2 h-2 bg-gray-500 rounded-full mr-2 animate-pulse"></div>
+                                    <div className="dot w-2 h-2 bg-gray-500 rounded-full animate-pulse"></div>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -248,37 +180,6 @@ const ChatPage = () => {
                     </button>
                 </form>
             </div>
-
-            {/* Search Modal */}
-            {isSearchModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-1/2 p-6 relative">
-                        <form className="flex items-center mb-4 relative">
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => handleLiveSearch(e.target.value)}
-                                placeholder="Type to search..."
-                                className="flex-1 p-3 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 pr-12"
-                            />
-                            <button
-                                onClick={closeSearchModal}
-                                type="button"
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-800"
-                            >
-                                <FaTimes size={20} />
-                            </button>
-                        </form>
-                        <div className="space-y-4">
-                            {searchResults.map((result) => (
-                                <div key={result.id} className="bg-gray-100 p-4 rounded-lg shadow">
-                                    {result.text}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
